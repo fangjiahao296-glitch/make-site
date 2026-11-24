@@ -658,13 +658,16 @@ export const RESERVED = Object.freeze(['posts', 'tags', 'page']);
 /** Code-unit order (never the locale's). */
 const byCodeUnits = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
 
+const WS_ASCII = new Uint8Array(128);
+for (const c of [9, 10, 11, 12, 13, 32]) WS_ASCII[c] = 1;
+
 /** The words of a body: its runs of characters other than whitespace (the same count as /\S+/g, without building the array). */
 function wordsOf(text) {
   let n = 0;
   let inWord = false;
   for (let i = 0; i < text.length; i++) {
     const c = text.charCodeAt(i);
-    const ws = c === 32 || c === 9 || c === 10 || c === 13 || c === 11 || c === 12 || c === 160 || c === 0x1680 || (c >= 0x2000 && c <= 0x200a) || c === 0x2028 || c === 0x2029 || c === 0x202f || c === 0x205f || c === 0x3000 || c === 0xfeff;
+    const ws = c < 128 ? WS_ASCII[c] === 1 : c === 160 || c === 0x1680 || (c >= 0x2000 && c <= 0x200a) || c === 0x2028 || c === 0x2029 || c === 0x202f || c === 0x205f || c === 0x3000 || c === 0xfeff;
     if (ws) inWord = false;
     else if (!inWord) {
       inWord = true;
